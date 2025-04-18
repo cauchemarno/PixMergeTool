@@ -1,0 +1,302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Pix Merge Tool</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <layout class="QHBoxLayout" name="layout_prompt_and_clear">
+      <item>
+       <widget class="QCheckBox" name="checkBox_prompt">
+        <property name="text">
+         <string>Use Custom Prompt</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_token_counter">
+        <property name="text">
+         <string>Symbols: 0</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="button_clear">
+        <property name="text">
+         <string>Clear All</string>
+        </property>
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <widget class="QSplitter" name="splitter">
+      <property name="orientation">
+       <enum>Qt::Vertical</enum>
+      </property>
+      <widget class="QTextEdit" name="textEdit_prompt">
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+        </font>
+       </property>
+       <property name="visible">
+        <bool>false</bool>
+       </property>
+       <property name="placeholderText">
+        <string>Write your prompt here...</string>
+       </property>
+      </widget>
+      <widget class="QPlainTextEdit" name="plainTextEdit_main">
+       <property name="placeholderText">
+        <string>Drag &amp; drop files or folders here</string>
+       </property>
+      </widget>
+     </widget>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="layout_project_root">
+      <item>
+       <widget class="QLabel" name="label_project_root">
+        <property name="text">
+         <string>Root folder for relative paths:</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineEdit_project_root">
+        <property name="placeholderText">
+         <string>Enter folder name to trim from paths...</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item>
+     <layout class="QHBoxLayout" name="layout_buttons">
+      <item>
+       <widget class="QPushButton" name="button_copy">
+        <property name="text">
+         <string>Copy Result to Clipboard</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="button_save">
+        <property name="text">
+         <string>Export as .txt</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>800</width>
+     <height>33</height>
+    </rect>
+   </property>
+   <property name="nativeMenuBar">
+    <bool>false</bool>
+   </property>
+   <layout class="QHBoxLayout" name="menuBarLayout">
+    <item>
+     <widget class="QMenu" name="menuFormat">
+      <property name="title">
+       <string>Code Wrapping Format</string>
+      </property>
+      <addaction name="action_markdown"/>
+      <addaction name="action_xml"/>
+     </widget>
+    </item>
+    <item>
+     <widget class="QMenu" name="menuFilePath">
+      <property name="title">
+       <string>File Path Display Mode</string>
+      </property>
+      <addaction name="action_filename_only"/>
+      <addaction name="action_fullpath"/>
+      <addaction name="action_relative"/>
+     </widget>
+    </item>
+    <item>
+     <widget class="QMenu" name="menuAppend">
+      <property name="title">
+       <string>Drag'n'Drop Behavior</string>
+      </property>
+      <addaction name="action_append"/>
+      <addaction name="separator"/>
+      <addaction name="action_add_language"/>
+      <addaction name="separator"/>
+      <addaction name="action_persist_fields"/>
+      <addaction name="separator"/>
+      <addaction name="action_show_ignored"/>
+      <addaction name="action_edit_ignored"/>
+     </widget>
+    </item>
+    <item>
+     <widget class="QMenu" name="menuHelp">
+      <property name="title">
+       <string>Help</string>
+      </property>
+      <addaction name="action_about"/>
+     </widget>
+    </item>
+   </layout>
+   <addaction name="menuFormat"/>
+   <addaction name="menuFilePath"/>
+   <addaction name="menuAppend"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <action name="action_markdown">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Markdown</string>
+   </property>
+  </action>
+  <action name="action_xml">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>XML</string>
+   </property>
+  </action>
+  <action name="action_filename_only">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Filename only</string>
+   </property>
+  </action>
+  <action name="action_fullpath">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Full path</string>
+   </property>
+  </action>
+  <action name="action_relative">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Relative to project folder</string>
+   </property>
+  </action>
+  <action name="action_append">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Append new files and folders</string>
+   </property>
+  </action>
+  <action name="action_show_ignored">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show ignored folders in ASCII tree</string>
+   </property>
+  </action>
+  <action name="action_add_language">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Add language to markdown if possible</string>
+   </property>
+  </action>
+  <action name="action_persist_fields">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Save fields content on exit</string>
+   </property>
+  </action>
+  <action name="action_edit_ignored">
+   <property name="text">
+    <string>Edit ignored folders</string>
+   </property>
+  </action>
+  <action name="action_guide">
+   <property name="text">
+    <string>Guide</string>
+   </property>
+  </action>
+  <action name="action_about">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="action_show_emoji">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Show emoji in UI</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

@@ -89,4 +89,4 @@ Feel free to report issues or suggest features on GitHub.
 
 This project is licensed under the [GPL-3.0](https://www.gnu.org/licenses/gpl-3.0.html) License.
 
-App logo is an emoji graphics from [Twemoji](https://github.com/twitter/twemoji) by Twitter(X), used under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+App logo is an emoji graphic from [Twemoji](https://github.com/twitter/twemoji) by Twitter(X), used under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).

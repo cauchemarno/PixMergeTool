@@ -43,7 +43,7 @@
 
 ## 🖥 Screenshot
 
-![Screenshot1](https://i.imgur.com/dWogsnk.png)
+![Screenshot1](assets/app_screenshot.png)
 
 ## 🧪 Run from Source
 

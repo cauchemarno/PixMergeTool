@@ -15,7 +15,7 @@ class AboutWindow(QDialog):
             "<p>v1.0.0</p>"
             "<p>PixMergeTool merges multiple text/code files into one and generates ASCII folder trees — perfect for sharing and analyzing projects with AI.</p>"
             "<p>Check <a href='https://github.com/cauchemarno/PixMergeTool'>GitHub repository</a> for more information.</p>"
-            "<p>App logo is an emoji graphics from <a href='https://github.com/twitter/twemoji'>Twemoji</a> by Twitter(X), "
+            "<p>App logo is an emoji graphic from <a href='https://github.com/twitter/twemoji'>Twemoji</a> by Twitter(X), "
             "used under <a href='https://creativecommons.org/licenses/by/4.0/'>CC BY 4.0</a>.</p>"
         )
         about_label.setWordWrap(True)

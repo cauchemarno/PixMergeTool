@@ -1,0 +1,2 @@
+from views.custom.about_window import AboutWindow
+from views.custom.ignored_folders_dialog import IgnoredFoldersDialog

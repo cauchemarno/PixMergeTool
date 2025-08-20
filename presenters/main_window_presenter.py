@@ -1,5 +1,7 @@
 import os
+import re
 
+from PySide6.QtCore import QTimer
 from PySide6.QtWidgets import QMessageBox, QFileDialog, QApplication, QDialog
 
 from views import AboutWindow, IgnoredFoldersDialog
@@ -12,14 +14,29 @@ class MainPresenter:
         self.view.presenter = self
         self.processor = FileProcessor()
         self.previous_splitter_sizes = None
+
+        self._metrics_timer = QTimer(self.view)
+        self._metrics_timer.setSingleShot(True)
+        self._metrics_timer.setInterval(150)
+        self._metrics_timer.timeout.connect(self._recompute_metrics)
+        self._word_re = re.compile(r"\S+")
+
         self.setup_connections()
+        self._apply_top_controls_visibility()
+
+        self.update_symbol_counter()
 
     def setup_connections(self):
         ui = self.view.ui
         ui.checkBox_prompt.toggled.connect(self.toggle_prompt)
+
+        ui.button_clear_prompt.clicked.connect(self.clear_prompt)
+        ui.button_clear_main.clicked.connect(self.clear_main)
+        ui.button_clear.clicked.connect(self.clear_all)
+        ui.button_pin.toggled.connect(self.toggle_always_on_top)
+
         ui.button_copy.clicked.connect(self.copy_to_clipboard)
         ui.button_save.clicked.connect(self.save_to_txt)
-        ui.button_clear.clicked.connect(self.clear_text)
 
         ui.action_markdown.triggered.connect(self.select_markdown)
         ui.action_xml.triggered.connect(self.select_xml)
@@ -27,11 +44,19 @@ class MainPresenter:
         ui.action_fullpath.triggered.connect(self.select_fullpath)
         ui.action_relative.triggered.connect(self.select_relative)
         ui.action_about.triggered.connect(self.show_about)
-        if hasattr(ui, "action_edit_ignored"):
-            ui.action_edit_ignored.triggered.connect(self.edit_ignored_folders)
+        ui.action_edit_ignored.triggered.connect(self.edit_ignored_folders)
 
         ui.textEdit_prompt.textChanged.connect(self.update_symbol_counter)
         ui.plainTextEdit_main.textChanged.connect(self.update_symbol_counter)
+
+    def _apply_top_controls_visibility(self):
+        ui = self.view.ui
+        checked = ui.checkBox_prompt.isChecked()
+        ui.button_clear_prompt.setVisible(checked)
+
+        ui.button_clear_main.setVisible(checked)
+        ui.button_clear.setVisible(True)
+        ui.button_clear.setText("Clear All" if checked else "Clear")
 
     def toggle_prompt(self, checked: bool):
         splitter = self.view.splitter
@@ -43,7 +68,7 @@ class MainPresenter:
             splitter.setCollapsible(0, False)
             splitter.setCollapsible(1, False)
             if self.previous_splitter_sizes is not None and self.previous_splitter_sizes[0] >= 50 and \
-                    self.previous_splitter_sizes[1] >= 50:
+               self.previous_splitter_sizes[1] >= 50:
                 sizes = self.previous_splitter_sizes
             else:
                 half = total // 2
@@ -59,7 +84,29 @@ class MainPresenter:
             splitter.setCollapsible(0, True)
             splitter.setCollapsible(1, True)
             splitter.setSizes([0, total])
+
+        self._apply_top_controls_visibility()
         self.update_symbol_counter()
+
+    def clear_prompt(self):
+        ui = self.view.ui
+        ui.textEdit_prompt.clear()
+        self.update_symbol_counter()
+        self.view.overlay.show_temporary_message("Prompt cleared", duration=200)
+
+    def clear_main(self):
+        ui = self.view.ui
+        ui.plainTextEdit_main.clear()
+        self.update_symbol_counter()
+        self.view.overlay.show_temporary_message("Merge cleared", duration=200)
+
+    def clear_all(self):
+        ui = self.view.ui
+        ui.textEdit_prompt.clear()
+        ui.plainTextEdit_main.clear()
+        # ui.lineEdit_project_root.clear()
+        self.update_symbol_counter()
+        self.view.overlay.show_temporary_message("All cleared", duration=200)
 
     def copy_to_clipboard(self):
         full_text = self.get_full_text()
@@ -77,31 +124,37 @@ class MainPresenter:
             except Exception as e:
                 QMessageBox.critical(self.view, "Error", f"Error saving file: {str(e)}")
 
-    def clear_text(self):
-        reply = QMessageBox.question(self.view, "Confirm", "Are you sure to clear all?", QMessageBox.Yes | QMessageBox.No)
-        if reply == QMessageBox.Yes:
-            self.view.ui.textEdit_prompt.clear()
-            self.view.ui.plainTextEdit_main.clear()
-            self.view.ui.lineEdit_project_root.clear()
-            self.update_symbol_counter()
-
     def get_full_text(self) -> str:
-        text = ""
-        if self.view.ui.checkBox_prompt.isChecked():
-            text += self.view.ui.textEdit_prompt.toPlainText() + "\n\n"
-        text += self.view.ui.plainTextEdit_main.toPlainText()
-        return text
+        ui = self.view.ui
+        parts = []
+        if ui.checkBox_prompt.isChecked():
+            parts.append(ui.textEdit_prompt.toPlainText())
+        parts.append(ui.plainTextEdit_main.toPlainText())
+        return "\n\n".join([p for p in parts if p])
 
     def update_symbol_counter(self):
+        self._metrics_timer.start()
+
+    def _recompute_metrics(self):
         ui = self.view.ui
-        if ui.checkBox_prompt.isChecked():
-            prompt_text = ui.textEdit_prompt.toPlainText().strip()
-        else:
-            prompt_text = ""
-        main_text = ui.plainTextEdit_main.toPlainText()
-        full_text = prompt_text + main_text
-        chars = len(full_text)
-        ui.label_token_counter.setText(f"Symbols: {chars}")
+        prompt_enabled = ui.checkBox_prompt.isChecked()
+        text1 = ui.textEdit_prompt.toPlainText() if prompt_enabled else ""
+        text2 = ui.plainTextEdit_main.toPlainText()
+
+        chars_ws = len(text1) + len(text2)
+
+        def no_ws_len(s: str) -> int:
+            return len(s) - (s.count(" ") + s.count("\t") + s.count("\n") + s.count("\r"))
+        chars_no_ws = no_ws_len(text1) + no_ws_len(text2)
+
+        words = sum(1 for _ in self._word_re.finditer(text1)) + \
+                sum(1 for _ in self._word_re.finditer(text2))
+
+        def line_count(s: str) -> int:
+            return s.count("\n") + (1 if s else 0)
+        lines = line_count(text1) + line_count(text2)
+
+        self.view.set_status_metrics(words, chars_no_ws, chars_ws, lines)
 
     def handle_dropped_items(self, paths):
         append_mode = self.view.ui.action_append.isChecked()
@@ -183,3 +236,7 @@ class MainPresenter:
             new_list = dialog.get_ignored_folders()
             settings_manager.save_ignored_folders(new_list)
             self.processor.ignored_dirs = set(new_list)
+
+    def toggle_always_on_top(self, checked: bool):
+        self.view.set_always_on_top(checked)
+        self.view.ui.button_pin.setText(" Unpin Window " if checked else "Pin On Top")

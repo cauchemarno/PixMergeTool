@@ -25,22 +25,16 @@
        </widget>
       </item>
       <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
+       <widget class="QPushButton" name="button_clear_prompt">
+        <property name="text">
+         <string> Clear Prompt </string>
         </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
+       </widget>
       </item>
       <item>
-       <widget class="QLabel" name="label_token_counter">
+       <widget class="QPushButton" name="button_clear_main">
         <property name="text">
-         <string>Symbols: 0</string>
+         <string> Clear Merge </string>
         </property>
        </widget>
       </item>
@@ -49,11 +43,22 @@
         <property name="text">
          <string>Clear All</string>
         </property>
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       </widget>
+      </item>
+      <item>
+       <spacer name="toolbar_spacer">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="button_pin">
+        <property name="text">
+         <string>Pin On Top</string>
+        </property>
+        <property name="checkable">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -138,7 +143,7 @@
     <item>
      <widget class="QMenu" name="menuFormat">
       <property name="title">
-       <string>Code Wrapping Format</string>
+       <string>Code Wrapping</string>
       </property>
       <addaction name="action_markdown"/>
       <addaction name="action_xml"/>
@@ -147,7 +152,7 @@
     <item>
      <widget class="QMenu" name="menuFilePath">
       <property name="title">
-       <string>File Path Display Mode</string>
+       <string>File Path Display</string>
       </property>
       <addaction name="action_filename_only"/>
       <addaction name="action_fullpath"/>
@@ -157,13 +162,11 @@
     <item>
      <widget class="QMenu" name="menuAppend">
       <property name="title">
-       <string>Drag'n'Drop Behavior</string>
+       <string>Merge Behavior</string>
       </property>
       <addaction name="action_append"/>
       <addaction name="separator"/>
       <addaction name="action_add_language"/>
-      <addaction name="separator"/>
-      <addaction name="action_persist_fields"/>
       <addaction name="separator"/>
       <addaction name="action_show_ignored"/>
       <addaction name="action_edit_ignored"/>
@@ -183,6 +186,7 @@
    <addaction name="menuAppend"/>
    <addaction name="menuHelp"/>
   </widget>
+  <widget class="QStatusBar" name="statusbar"/>
   <action name="action_markdown">
    <property name="checkable">
     <bool>true</bool>
@@ -259,41 +263,14 @@
     <string>Add language to markdown if possible</string>
    </property>
   </action>
-  <action name="action_persist_fields">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Save fields content on exit</string>
-   </property>
-  </action>
   <action name="action_edit_ignored">
    <property name="text">
     <string>Edit ignored folders</string>
    </property>
   </action>
-  <action name="action_guide">
-   <property name="text">
-    <string>Guide</string>
-   </property>
-  </action>
   <action name="action_about">
    <property name="text">
     <string>About</string>
-   </property>
-  </action>
-  <action name="action_show_emoji">
-   <property name="checkable">
-    <bool>true</bool>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-   <property name="text">
-    <string>Show emoji in UI</string>
    </property>
   </action>
  </widget>

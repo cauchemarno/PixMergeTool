@@ -12,7 +12,7 @@ class AboutWindow(QDialog):
         about_label.setOpenExternalLinks(True)
         about_label.setText(
             "<h2>🧩 Pix Merge Tool</h2>"
-            "<p>v1.0.0</p>"
+            "<p>v1.0.1</p>"
             "<p>PixMergeTool merges multiple text/code files into one and generates ASCII folder trees — perfect for sharing and analyzing projects with AI.</p>"
             "<p>Check <a href='https://github.com/cauchemarno/PixMergeTool'>GitHub repository</a> for more information.</p>"
             "<p>App logo is an emoji graphic from <a href='https://github.com/twitter/twemoji'>Twemoji</a> by Twitter(X), "

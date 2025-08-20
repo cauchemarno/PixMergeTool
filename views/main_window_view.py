@@ -1,6 +1,6 @@
-from PySide6.QtWidgets import QMainWindow, QWidget, QLabel, QGraphicsOpacityEffect
+from PySide6.QtWidgets import QMainWindow, QWidget, QLabel, QGraphicsOpacityEffect, QSizePolicy, QHBoxLayout
 from PySide6.QtCore import Qt, QPropertyAnimation, QEasingCurve, QTimer
-from PySide6.QtGui import QGuiApplication
+from PySide6.QtGui import QGuiApplication, QFontMetrics
 
 from views import Ui_MainWindow
 from models import MarkdownHighlighter, SettingsManager
@@ -51,14 +51,62 @@ class OverlayWidget(QWidget):
         self.animation.start()
         self.animation.finished.connect(self.hide_overlay)
 
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.ui = Ui_MainWindow()
         self.ui.setupUi(self)
+
+        self.splitter = self.ui.splitter
+
+        self._stat_words = QLabel("Words: 0")
+        self._stat_chars_no_ws = QLabel("Characters (no spaces): 0")
+        self._stat_chars_ws = QLabel("Characters: 0")
+        self._stat_lines = QLabel("Lines: 0")
+
+        fm = QFontMetrics(self.font())
+        for lab, sample in [
+            (self._stat_words, "Words: 0000000"),
+            (self._stat_chars_no_ws, "Characters (no spaces): 0000000"),
+            (self._stat_chars_ws, "Characters: 0000000"),
+            (self._stat_lines, "Lines: 0000000"),
+        ]:
+            lab.setMinimumWidth(fm.horizontalAdvance(sample))
+            lab.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+
+        self._stat_container = QWidget(self)
+        hl = QHBoxLayout(self._stat_container)
+
+        left_pad = max(6, self.logicalDpiX() // 16)
+        hl.setContentsMargins(left_pad, 0, 0, 0)
+
+        hl.setSpacing(0)
+
+        def make_sep():
+            s = QLabel("|", self._stat_container)
+            s.setStyleSheet("padding: 0 8px")
+            s.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+            return s
+
+        items = [
+            self._stat_words,
+            self._stat_chars_no_ws,
+            self._stat_chars_ws,
+            self._stat_lines
+        ]
+        for i, w in enumerate(items):
+            hl.addWidget(w)
+            if i < len(items) - 1:
+                hl.addWidget(make_sep())
+
+        self.statusBar().addWidget(self._stat_container, 0)
+        self.statusBar().setStyleSheet("QStatusBar::item { border: none; }")
+
         self.setAcceptDrops(True)
 
         settings_manager = SettingsManager()
+        settings_manager.load(self)
         settings_manager.load_window_state(self)
 
         current_geometry = self.frameGeometry()
@@ -66,16 +114,11 @@ class MainWindow(QMainWindow):
                    for screen in QGuiApplication.screens()):
             self.center_window()
 
-        self.splitter = self.ui.splitter
         self.ui.plainTextEdit_main.setMinimumHeight(50)
         self.ui.textEdit_prompt.setMinimumHeight(0)
-        if not self.ui.checkBox_prompt.isChecked():
-            self.splitter.setSizes([0, self.splitter.size().height()])
+
         self.ui.textEdit_prompt.setAcceptDrops(False)
         self.ui.plainTextEdit_main.setAcceptDrops(False)
-
-        self.ui.label_project_root.setVisible(False)
-        self.ui.lineEdit_project_root.setVisible(False)
 
         self.overlay = OverlayWidget(self.ui.centralwidget)
         self.overlay.resize(self.ui.centralwidget.size())
@@ -85,7 +128,18 @@ class MainWindow(QMainWindow):
 
         self.splitter.splitterMoved.connect(self.on_splitter_moved)
 
+        self._apply_top_controls_visibility_from_checkbox()
+
         self.presenter = None
+
+    def _apply_top_controls_visibility_from_checkbox(self):
+        checked = self.ui.checkBox_prompt.isChecked()
+        if hasattr(self.ui, "button_clear_prompt"):
+            self.ui.button_clear_prompt.setVisible(checked)
+        if hasattr(self.ui, "button_clear"):
+            self.ui.button_clear.setVisible(checked)
+        if hasattr(self.ui, "button_clear_main"):
+            self.ui.button_clear_main.setVisible(True)
 
     def center_window(self):
         screen = self.screen().availableGeometry()
@@ -94,6 +148,7 @@ class MainWindow(QMainWindow):
 
     def closeEvent(self, event):
         settings_manager = SettingsManager()
+        settings_manager.save(self)
         settings_manager.save_window_state(self)
         super().closeEvent(event)
 
@@ -142,3 +197,15 @@ class MainWindow(QMainWindow):
         else:
             if sizes[1] < 50:
                 self.splitter.setSizes([total - 50, 50])
+
+    def set_status_metrics(self, words: int, chars_no_ws: int, chars_ws: int, lines: int):
+        self._stat_words.setText(f"Words: {words}")
+        self._stat_chars_no_ws.setText(f"Characters (no spaces): {chars_no_ws}")
+        self._stat_chars_ws.setText(f"Characters: {chars_ws}")
+        self._stat_lines.setText(f"Lines: {lines}")
+
+    def set_always_on_top(self, enabled: bool):
+        self.setWindowFlag(Qt.WindowStaysOnTopHint, enabled)
+        self.show()
+        self.raise_()
+        self.activateWindow()

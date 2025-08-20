@@ -3,7 +3,7 @@ from PySide6.QtCore import QSettings
 
 class SettingsManager:
     def __init__(self):
-        self.settings = QSettings("cauchemarno", "PixMergeTool")
+        self.settings = QSettings("Pix", "PixMergeTool")
 
     def _save_value(self, key, value):
         self.settings.setValue(key, value)
@@ -57,6 +57,9 @@ class SettingsManager:
             ui.checkBox_prompt.blockSignals(False)
 
         ui.textEdit_prompt.setVisible(prompt_enabled)
+        ui.button_clear_prompt.setVisible(prompt_enabled)
+        ui.button_clear.setVisible(True)
+        ui.button_clear_main.setVisible(prompt_enabled)
 
         persist_fields = self._load_value("persist_fields", True, bool)
         if hasattr(ui, "action_persist_fields"):
